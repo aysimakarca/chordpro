@@ -40,6 +40,21 @@ def getIntro(content):
                 break
     return chordsOfIntro
 
+def getBridge(content):
+    chordsOfBridge = []
+    inBridge = False
+    for line in content.split("\n"): 
+        if 'c:bridge:}' in line.lower() or '{c:bridge}'in line.lower():
+            inBridge = True
+        elif inBridge:
+            lineChords = getChordsOfALine(line, content)
+            if len(lineChords) > 0:
+                chordsOfBridge.extend(lineChords)
+            else:
+                inBridge = False
+                break
+    return chordsOfBridge
+
 def getChorus(content):
     pattern = r"{soc}(.*?){eoc}"
     match = re.search(pattern, content, re.DOTALL)
@@ -58,6 +73,8 @@ def getChordsOfALine(line, content):
         lineChords = getChorus(content)
     elif "repeat intro}" in line.lower():
         lineChords = getIntro(content)
+    elif "repeat bridge}" in line.lower():
+        lineChords = getBridge(content)
     elif "[" in line:
         lineChords = re.findall(chord_pattern, line)   
     return lineChords
